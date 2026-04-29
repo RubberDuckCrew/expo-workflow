@@ -22,11 +22,16 @@ on:
         required: false
         default: "."
         type: string
+      java-version:
+        description: "Java version for Android build"
+        required: false
+        type: string
+        default: "21"
       node-version:
         description: "Node.js version"
         required: false
         type: string
-        default: "24.15.0"
+        default: "24"
       bot-app-id:
         description: "GitHub App ID for Release creation"
         required: false
@@ -132,11 +137,11 @@ jobs:
           echo "version_name=$version_name" >> "$GITHUB_OUTPUT"
           echo "artifact_name=${app_name}_${version_name}" >> "$GITHUB_OUTPUT"
 
-      - name: Setup Java
-        uses: actions/setup-java@f4fc8b00204ceb0f9f08a98f43684b9a54b6f8c1 # v5.1.0
+      - name: Set up JDK
+        uses: actions/setup-java@be666c2fcd27ec809703dec50e508c2fdc7f6654 # v5.2.0
         with:
-          distribution: temurin
-          java-version: "21"
+          distribution: "temurin"
+          java-version: ${{ inputs['java-version'] }}
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
