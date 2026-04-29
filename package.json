@@ -1,0 +1,27 @@
+{
+  "name": "expo-workflow",
+  "description": "A centralized, reusable GitHub Actions workflow for testing, building, and releasing Expo applications.",
+  "keywords": [
+    "build",
+    "test",
+    "action",
+    "expo"
+  ],
+  "homepage": "https://github.com/RubberDuckCrew/expo-workflow#readme",
+  "bugs": {
+    "url": "https://github.com/RubberDuckCrew/expo-workflow/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/RubberDuckCrew/expo-workflow.git"
+  },
+  "license": "MIT",
+  "author": "RubberDuckCrew",
+  "scripts": {
+    "lint": "prettier . --check",
+    "fix": "prettier . --write"
+  },
+  "devDependencies": {
+    "prettier": "3.8.3"
+  }
+}
