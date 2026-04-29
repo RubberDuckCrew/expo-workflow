@@ -27,23 +27,11 @@ on:
         required: false
         type: string
         default: "24.15.0"
-      eas-platform:
-        description: "EAS build platform (android, ios, all)"
-        required: false
-        type: string
-        default: "android"
-      eas-profile:
-        description: "EAS build profile from eas.json"
-        required: false
-        type: string
-        default: "production"
       bot-app-id:
         description: "GitHub App ID for Release creation"
         required: false
         type: string
     secrets:
-      EXPO_TOKEN:
-        required: false
       BOT_APP_PRIVATE_KEY:
         required: false
 
@@ -144,44 +132,33 @@ jobs:
           echo "version_name=$version_name" >> "$GITHUB_OUTPUT"
           echo "artifact_name=${app_name}_${version_name}" >> "$GITHUB_OUTPUT"
 
-      - name: Validate required Expo token
-        if: ${{ !secrets.EXPO_TOKEN }}
-        run: |
-          echo "EXPO_TOKEN is required for build/release workflows." >&2
-          exit 1
+      - name: Setup Java
+        uses: actions/setup-java@f4fc8b00204ceb0f9f08a98f43684b9a54b6f8c1 # v5.1.0
+        with:
+          distribution: temurin
+          java-version: "21"
 
-      - name: Run EAS build
-        env:
-          EXPO_TOKEN: ${{ secrets.EXPO_TOKEN }}
-        run: |
-          npx eas-cli@latest build \
-            --platform "${{ inputs['eas-platform'] }}" \
-            --profile "${{ inputs['eas-profile'] }}" \
-            --non-interactive \
-            --wait \
-            --json > eas-build.json
+      - name: Setup Gradle
+        uses: gradle/actions/setup-gradle@50e97c2cd7a37755bbfafc9c5b7cafaece252f6e # v6.1.0
 
-      - name: Download build artifacts from EAS
-        run: |
-          artifact_urls=$(jq -r '
-            if type == "array" then
-              .[] | (.artifacts?.buildUrl // .artifacts?.applicationArchiveUrl // empty)
-            else
-              (.artifacts?.buildUrl // .artifacts?.applicationArchiveUrl // empty)
-            end
-          ' eas-build.json)
+      - name: Generate native Android project
+        run: npx expo prebuild --platform android --non-interactive
 
-          if [ -z "$artifact_urls" ]; then
-            echo "No downloadable artifacts found in eas-build.json." >&2
+      - name: Build Android APK locally
+        run: |
+          cd android
+          chmod +x ./gradlew
+          ./gradlew assembleRelease --no-daemon
+
+      - name: Collect local build artifacts
+        run: |
+          mkdir -p build-artifacts
+          apk_path="android/app/build/outputs/apk/release/app-release.apk"
+          if [ ! -f "$apk_path" ]; then
+            echo "Expected APK not found: $apk_path" >&2
             exit 1
           fi
-
-          mkdir -p build-artifacts
-          while IFS= read -r url; do
-            [ -z "$url" ] && continue
-            file_name=$(basename "${url%%\?*}")
-            curl --fail --location "$url" --output "build-artifacts/$file_name"
-          done <<< "$artifact_urls"
+          cp "$apk_path" "build-artifacts/${{ steps.build_options.outputs.artifact_name }}.apk"
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@65c4c4a1ddee5b72f698fdd19549f0f0fb45cf08 # v4.6.0
