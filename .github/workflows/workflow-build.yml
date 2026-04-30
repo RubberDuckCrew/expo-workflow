@@ -152,8 +152,7 @@ jobs:
       - name: Build Android APK locally
         run: |
           cd android
-          chmod +x ./gradlew
-          ./gradlew assembleRelease --no-daemon
+          gradle assembleRelease
 
       - name: Collect local build artifacts
         run: |
