@@ -185,48 +185,28 @@ jobs:
       - name: Build Android APK locally
         run: |
           cd android
-          gradle assembleRelease --split-per-abi ${{ steps.keystore.outputs.signing_available != 'true' && '-PskipSigning=true' || '' }}
+          gradle assembleRelease ${{ steps.keystore.outputs.signing_available != 'true' && '-PskipSigning=true' || '' }}
 
       - name: Rename build artifacts
         run: |
           mkdir -p "$GITHUB_WORKSPACE/build-artifacts"
-          for apk in android/app/build/outputs/apk/release/*.apk; do
-            [ -f "$apk" ] || continue
-            filename=$(basename "$apk")
-            case "$filename" in
-              *arm64-v8a*) abi=arm64-v8a ;;
-              *armeabi-v7a*) abi=armeabi-v7a ;;
-              *x86_64*) abi=x86_64 ;;
-              *) abi=universal ;;
-            esac
-            mv "$apk" "$GITHUB_WORKSPACE/build-artifacts/${{ inputs['app-name'] }}_${{ steps.build_options.outputs.version_name }}_${abi}.apk" || true
-          done
+          apk_path="android/app/build/outputs/apk/release/app-release.apk"
+          if [ ! -f "$apk_path" ]; then
+            echo "Expected APK not found: $apk_path" >&2
+            exit 1
+          fi
+          mv "$apk_path" "$GITHUB_WORKSPACE/build-artifacts/${{ inputs['app-name'] }}_${{ steps.build_options.outputs.version_name }}.apk"
 
-      - name: Upload APK arm64-v8a
+      - name: Upload APK
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
-          name: ${{ inputs['app-name'] }}_${{ steps.build_options.outputs.version_name }}_arm64-v8a.apk
-          path: ${{ github.workspace }}/build-artifacts/${{ inputs['app-name'] }}_${{ steps.build_options.outputs.version_name }}_arm64-v8a.apk
-          archive: false
-
-      - name: Upload APK armeabi-v7a
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: ${{ inputs['app-name'] }}_${{ steps.build_options.outputs.version_name }}_armeabi-v7a.apk
-          path: ${{ github.workspace }}/build-artifacts/${{ inputs['app-name'] }}_${{ steps.build_options.outputs.version_name }}_armeabi-v7a.apk
-          archive: false
-
-      - name: Upload APK x86_64
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
-        with:
-          name: ${{ inputs['app-name'] }}_${{ steps.build_options.outputs.version_name }}_x86_64.apk
-          path: ${{ github.workspace }}/build-artifacts/${{ inputs['app-name'] }}_${{ steps.build_options.outputs.version_name }}_x86_64.apk
+          name: ${{ inputs['app-name'] }}_${{ steps.build_options.outputs.version_name }}.apk
+          path: ${{ github.workspace }}/build-artifacts/${{ inputs['app-name'] }}_${{ steps.build_options.outputs.version_name }}.apk
           archive: false
 
   post-build:
     name: Post build
     needs: build
-    if: ${{ always() }}
     runs-on: ubuntu-latest
 
     permissions:
@@ -274,20 +254,10 @@ jobs:
           client-id: ${{ inputs['bot-app-id'] }}
           private-key: ${{ secrets.BOT_APP_PRIVATE_KEY }}
 
-      - name: Download APK arm64-v8a artifact
+      - name: Download APK artifact
         uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
-          name: ${{ inputs['app-name'] }}_${{ needs.build.outputs.version_name }}_arm64-v8a.apk
-
-      - name: Download APK armeabi-v7a artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: ${{ inputs['app-name'] }}_${{ needs.build.outputs.version_name }}_armeabi-v7a.apk
-
-      - name: Download APK x86_64 artifact
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
-        with:
-          name: ${{ inputs['app-name'] }}_${{ needs.build.outputs.version_name }}_x86_64.apk
+          name: ${{ inputs['app-name'] }}_${{ needs.build.outputs.version_name }}.apk
 
       - name: Create GitHub Release
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
@@ -298,6 +268,4 @@ jobs:
           draft: true
           prerelease: false
           files: |
-            ${{ inputs['app-name'] }}_${{ needs.build.outputs.version_name }}_arm64-v8a.apk
-            ${{ inputs['app-name'] }}_${{ needs.build.outputs.version_name }}_armeabi-v7a.apk
-            ${{ inputs['app-name'] }}_${{ needs.build.outputs.version_name }}_x86_64.apk
+            ${{ inputs['app-name'] }}_${{ needs.build.outputs.version_name }}.apk
