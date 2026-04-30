@@ -135,12 +135,12 @@ jobs:
         run: |
           SHA="${{ github.event.pull_request.head.sha || github.sha }}"
           SHORT_SHA="${SHA:0:7}"
-          
+
           version_name="$INPUT_RELEASE_VERSION"
           if [ -z "$version_name" ]; then
             version_name="$(echo "$GITHUB_REF_NAME" | tr / _)_${SHORT_SHA}"
           fi
-          
+
           app_name="$INPUT_APP_NAME"
           if [ -z "$app_name" ]; then
             app_name="expo-app"
@@ -170,7 +170,7 @@ jobs:
             echo "Keystore secret is empty, skipping signing."
             exit 0
           fi
-          
+
           {
             echo keyPassword=${{ secrets.KEY_PASSWORD }}
             echo storePassword=${{ secrets.KEYSTORE_PASSWORD }}
