@@ -1,0 +1,25 @@
+name: Test Reusable Workflow (test-app)
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/workflow-build.yml"
+      - ".github/workflows/test-workflow.yml"
+      - "test-app/**"
+  pull_request:
+    types: [opened, synchronize, reopened]
+
+jobs:
+  build-test-app:
+    name: Build test-app
+    permissions:
+      contents: write
+      pull-requests: write
+    uses: ./.github/workflows/workflow-build.yml
+    with:
+      app-name: test-app
+      build-type: build
+      working-directory: test-app
