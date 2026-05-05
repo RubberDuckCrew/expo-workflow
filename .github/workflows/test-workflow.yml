@@ -12,13 +12,12 @@ on:
   pull_request:
     types: [opened, synchronize, reopened]
 
-permissions:
-  contents: write
-  pull-requests: write
-
 jobs:
   build-test-app:
     name: Build test-app
+    permissions:
+      contents: write
+      pull-requests: write
     uses: ./.github/workflows/workflow-build.yml
     with:
       app-name: test-app
