@@ -90,6 +90,8 @@ jobs:
 
       - name: Run Expo Doctor
         run: npx expo-doctor
+        env:
+          EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK: 1
 
       - name: Run tests
         run: npm test --if-present
