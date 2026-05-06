@@ -5,12 +5,7 @@
   ],
   "packageRules": [
     {
-      "matchPackageNames": [
-        "expo",
-        "react-native",
-        "/^expo-/",
-        "/^@expo\\//"
-      ],
+      "matchPackageNames": ["expo", "react-native", "/^expo-/", "/^@expo\\//"],
       "groupName": "expo ecosystem"
     }
   ],
