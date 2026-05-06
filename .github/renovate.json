@@ -5,8 +5,13 @@
   ],
   "packageRules": [
     {
-      "matchPackagePatterns": ["^expo", "^@expo/", "react-native"],
-      "groupName": "expo packages"
+      "matchPackageNames": [
+        "expo",
+        "react-native",
+        "/^expo-/",
+        "/^@expo\\//"
+      ],
+      "groupName": "expo ecosystem"
     }
   ],
   "reviewers": ["team:action-development"]
