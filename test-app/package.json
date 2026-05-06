@@ -11,9 +11,9 @@
     "lint": "expo lint"
   },
   "dependencies": {
-    "@react-navigation/bottom-tabs": "7.15.5",
-    "@react-navigation/elements": "2.9.10",
-    "@react-navigation/native": "7.1.33",
+    "@react-navigation/bottom-tabs": "7.15.11",
+    "@react-navigation/elements": "2.9.15",
+    "@react-navigation/native": "7.2.2",
     "expo": "55.0.20",
     "expo-constants": "55.0.15",
     "expo-device": "55.0.15",
