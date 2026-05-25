@@ -37,6 +37,10 @@ on:
         required: false
         type: string
         default: "24"
+      expo-doctor-version:
+        description: "expo-doctor version for validating the project"
+        required: false
+        type: string
       bot-app-id:
         description: "GitHub App ID for Release creation"
         required: false
@@ -89,9 +93,16 @@ jobs:
         run: npm run lint --if-present
 
       - name: Run Expo Doctor
-        run: npx expo-doctor
+        run: |
+          VERSION_SUFFIX=""
+          if [ -n "$EXPO_DOCTOR_VERSION" ]; then
+            VERSION_SUFFIX="@$EXPO_DOCTOR_VERSION"
+          fi
+
+          npx expo-doctor$VERSION_SUFFIX --verbose
         env:
           EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK: 1
+          EXPO_DOCTOR_VERSION: ${{ inputs['expo-doctor-version'] }}
 
       - name: Run tests
         run: npm test --if-present
