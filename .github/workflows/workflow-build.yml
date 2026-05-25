@@ -104,7 +104,7 @@ jobs:
             VERSION_SUFFIX="@$EXPO_DOCTOR_VERSION"
           fi
 
-          npx expo-doctor$VERSION_SUFFIX --verbose
+          npx "expo-doctor$VERSION_SUFFIX" --verbose
         env:
           EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK: ${{ inputs['skip-dependency-check'] && '1' || '0' }}
           EXPO_DOCTOR_VERSION: ${{ inputs['expo-doctor-version'] }}
