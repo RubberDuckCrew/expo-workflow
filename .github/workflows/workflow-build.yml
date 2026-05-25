@@ -41,6 +41,11 @@ on:
         description: "expo-doctor version for validating the project"
         required: false
         type: string
+      skip-dependency-check:
+        description: "Skip checking if dependencies are up to date in expo-doctor"
+        required: false
+        type: boolean
+        default: true
       bot-app-id:
         description: "GitHub App ID for Release creation"
         required: false
@@ -101,7 +106,7 @@ jobs:
 
           npx expo-doctor$VERSION_SUFFIX --verbose
         env:
-          EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK: 1
+          EXPO_DOCTOR_SKIP_DEPENDENCY_VERSION_CHECK: ${{ inputs['skip-dependency-check'] && '1' || '0' }}
           EXPO_DOCTOR_VERSION: ${{ inputs['expo-doctor-version'] }}
 
       - name: Run tests
