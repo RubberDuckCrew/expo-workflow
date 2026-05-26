@@ -23,3 +23,4 @@ jobs:
       app-name: test-app
       build-type: build
       working-directory: test-app
+      expo-doctor-version: "1.19.7" # 1.19.8 is currently failing in Metro Check
